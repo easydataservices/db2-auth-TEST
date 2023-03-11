@@ -2,6 +2,7 @@ package com.easydataservices.open.test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.logging.Logger;
 import com.easydataservices.open.auth.AuthControlDao;
 import com.easydataservices.open.auth.AuthAttributesDao;
 import com.easydataservices.open.auth.StoreSession;
@@ -10,30 +11,43 @@ import com.easydataservices.open.test.TestAuthBootstrap;
 import com.easydataservices.open.test.TestAuthPayload;
 
 /**
- * AUTH Service test payload class for testing the ATTRIBUTES.SAVE_ATTRIBUTES procedure.
+ * AUTH Service test payload class for creating new sessions and attributes.
  *
  * @author jeremy.rickard@easydataservices.com
  */
-public class TestAuthSaveAttributes extends TestAuthPayload {
+public class TestAuthCreateSessions extends TestAuthPayload {
+  private static final String className = TestAuthCreateSessions.class.getName();
+  private static final Logger logger = Logger.getLogger(className);
   private AuthControlDao authControlDao;
   private AuthAttributesDao authAttributesDao;
   private String sessionIdPrefix;
+  private String authNamePrefix;
 
   public void init(TestAuthBootstrap bootstrap) throws Exception {
+    logger.finer(() -> String.format("ENTRY %s %s", this, bootstrap));
     authControlDao = new AuthControlDao(bootstrap.getConnection(), bootstrap.getDbSchema());
     authAttributesDao = new AuthAttributesDao(bootstrap.getConnection(), bootstrap.getDbSchema());
     sessionIdPrefix = bootstrap.getPayloadUniqueId() + "_";
+    if (bootstrap.getPayloadAltId() != null) {
+      authNamePrefix = bootstrap.getPayloadAltId() + "_";
+    }
+    logger.finer(() -> String.format("RETURN %s", this));
   }
 
   public void payload(int iteration) throws Exception {
+    logger.finer(() -> String.format("ENTRY %s %s", this, iteration));
     ArrayList<StoreAttribute> attributeList = new ArrayList<StoreAttribute>();
     String sessionId = sessionIdPrefix + iteration;
+    String authName = null;
+    if (authNamePrefix != null) {
+      authName = authNamePrefix + iteration;
+    }
     StoreSession session = new StoreSession(sessionId);
     authControlDao.addSession(
-      session.getSessionId(), 
+      session.getSessionId(),
       new Object[] {
         null,
-        session.getAuthName(),
+        authName,
         null,
         session.getPropertiesJson()
       }
@@ -53,12 +67,7 @@ public class TestAuthSaveAttributes extends TestAuthPayload {
       attributeList.add(sessionAttributes[i]);  
     }
     authAttributesDao.saveAttributes(sessionId, attributeList);
-    if (iteration > 200 && iteration % 7 == 0) {
-      String oldSessionId = sessionIdPrefix + (iteration - 200);
-      ArrayList<StoreAttribute> oldAttributeList = new ArrayList<StoreAttribute>();
-      StoreAttribute oldAttribute = new StoreAttribute("test.attribute");
-      oldAttributeList.add(oldAttribute);
-      authAttributesDao.saveAttributes(oldSessionId, oldAttributeList);
-    }
+    logger.info(() -> String.format("%s %s", this, "Created session " + session.getSessionId() + " with " + p + " attribute(s)."));
+    logger.finer(() -> String.format("RETURN %s", this));
   }
 }

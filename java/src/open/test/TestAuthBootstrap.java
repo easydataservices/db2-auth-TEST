@@ -23,6 +23,7 @@ public class TestAuthBootstrap {
   private String payloadUniqueId;
   private int payloadIterations;
   private int payloadIntervalMs;
+  private String payloadAltId;
   private String dbUrl;
   private String dbSchema;
   private String dbUser;
@@ -51,6 +52,10 @@ public class TestAuthBootstrap {
 
   public int getPayloadIntervalMs() {
     return payloadIntervalMs;
+  }
+
+  public String getPayloadAltId() {
+    return payloadAltId;
   }
 
   private final void readDbConfig() {
@@ -82,10 +87,12 @@ public class TestAuthBootstrap {
       payloadUniqueId=properties.getProperty("payload.uniqueId");
       payloadIterations=Integer.parseInt(properties.getProperty("payload.iterations"));
       payloadIntervalMs=Integer.parseInt(properties.getProperty("payload.intervalMs"));
+      payloadAltId=properties.getProperty("payload.alternativeId");
       logger.finer(() -> String.format("payload.payloadClassName=%s", payloadClassName));
       logger.finer(() -> String.format("payload.uniqueId=%s", payloadUniqueId));
       logger.finer(() -> String.format("payload.iterations=%s", payloadIterations));
       logger.finer(() -> String.format("payload.intervalMs=%s", payloadIntervalMs));
+      logger.finer(() -> String.format("payload.alternativeId=%s", payloadAltId));
     }
     catch (Exception exception) {
       logger.severe(() -> String.format("FAILED: %s", exception.toString()));
