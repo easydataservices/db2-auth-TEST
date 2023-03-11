@@ -28,7 +28,7 @@ public class TestAuthCreateSessions extends TestAuthPayload {
     authControlDao = new AuthControlDao(bootstrap.getConnection(), bootstrap.getDbSchema());
     authAttributesDao = new AuthAttributesDao(bootstrap.getConnection(), bootstrap.getDbSchema());
     sessionIdPrefix = bootstrap.getPayloadPrefix1() + "_";
-    if (bootstrap.getPayloadPrefix2() != null) {
+    if (!bootstrap.getPayloadPrefix2().trim().equals("")) {
       authNamePrefix = bootstrap.getPayloadPrefix2() + "_";
     }
     logger.finer(() -> String.format("RETURN %s", this));
