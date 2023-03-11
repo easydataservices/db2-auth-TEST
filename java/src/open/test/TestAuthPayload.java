@@ -15,8 +15,9 @@ public abstract class TestAuthPayload {
   public abstract void init(TestAuthBootstrap bootstrap) throws Exception;
 
   /**
-   * Execute payload for specfied iteration.
-   * @param iteration Iteration, starting at 0 for first call and incrementing by 1 for each subsequent call.
+   * Execute payload for specfied occurrence.
+   * @param rangeId Range value (typically used to differentiate sessions).
+   * @param iteration Iteration, starting at 1 for first call and incrementing by 1 for each subsequent call.
    */
-  public abstract void payload(int iteration) throws Exception;
+  public abstract void payload(int rangeValue, int iteration) throws Exception;
 }

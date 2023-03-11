@@ -27,20 +27,20 @@ public class TestAuthCreateSessions extends TestAuthPayload {
     logger.finer(() -> String.format("ENTRY %s %s", this, bootstrap));
     authControlDao = new AuthControlDao(bootstrap.getConnection(), bootstrap.getDbSchema());
     authAttributesDao = new AuthAttributesDao(bootstrap.getConnection(), bootstrap.getDbSchema());
-    sessionIdPrefix = bootstrap.getPayloadUniqueId() + "_";
-    if (bootstrap.getPayloadAltId() != null) {
-      authNamePrefix = bootstrap.getPayloadAltId() + "_";
+    sessionIdPrefix = bootstrap.getPayloadPrefix1() + "_";
+    if (bootstrap.getPayloadPrefix2() != null) {
+      authNamePrefix = bootstrap.getPayloadPrefix2() + "_";
     }
     logger.finer(() -> String.format("RETURN %s", this));
   }
 
-  public void payload(int iteration) throws Exception {
-    logger.finer(() -> String.format("ENTRY %s %s", this, iteration));
+  public void payload(int rangeValue, int iteration) throws Exception {
+    logger.finer(() -> String.format("ENTRY %s %s %s", this, rangeValue, iteration));
     ArrayList<StoreAttribute> attributeList = new ArrayList<StoreAttribute>();
-    String sessionId = sessionIdPrefix + iteration;
+    String sessionId = sessionIdPrefix + rangeValue;
     String authName = null;
     if (authNamePrefix != null) {
-      authName = authNamePrefix + iteration;
+      authName = authNamePrefix + rangeValue;
     }
     StoreSession session = new StoreSession(sessionId);
     authControlDao.addSession(
@@ -52,16 +52,13 @@ public class TestAuthCreateSessions extends TestAuthPayload {
         session.getPropertiesJson()
       }
     );
-    StoreAttribute attribute = new StoreAttribute("test.attribute");
-    attribute.setObject("iteration:" + iteration);
-    attributeList.add(attribute);
-    int p = iteration % 6;
+    int p = rangeValue % 6;
     StoreAttribute[] sessionAttributes = new StoreAttribute[7];
     for (int i = 0; i <= p; i++) {
       int size = ((int) Math.pow(2, i + 1)) * 32000;
       char[] charArray = new char[size];
       Arrays.fill(charArray, '*');
-      String attributeName = "test.iteration." + (i + 1);
+      String attributeName = "ATTRIBUTE_" + (i + 1);
       sessionAttributes[i] = new StoreAttribute(attributeName);
       sessionAttributes[i].setObject("large object:" + new String(charArray) + attributeName);
       attributeList.add(sessionAttributes[i]);  

@@ -19,16 +19,20 @@ import com.easydataservices.open.test.TestAuthPayload;
 public class TestAuthBootstrap {
   private static final String className = TestAuthBootstrap.class.getName();
   private static final Logger logger = Logger.getLogger(className);
-  private String payloadClassName;
-  private String payloadUniqueId;
-  private int payloadIterations;
-  private int payloadIntervalMs;
-  private String payloadAltId;
+  private Connection connection;
   private String dbUrl;
   private String dbSchema;
   private String dbUser;
   private String dbPassword;
-  private Connection connection;
+  private String payloadClassName;
+  private int payloadRangeStart;
+  private int payloadRangeEnd;
+  private int payloadRangeIncrement;
+  private int payloadIntervalMs;
+  private int payloadIterations;
+  private int payloadIterationDelayMs;
+  private String payloadPrefix1;
+  private String payloadPrefix2;
 
   public Connection getConnection() {
     return connection;
@@ -38,24 +42,40 @@ public class TestAuthBootstrap {
     return dbSchema;
   }
 
-  public String getPayloadClassName() {
+  public String getPayloadPrefix1() {
+    return payloadPrefix1;
+  }
+
+  public String getPayloadPrefix2() {
+    return payloadPrefix2;
+  }
+
+  private String getPayloadClassName() {
     return payloadClassName;
   }
 
-  public String getPayloadUniqueId() {
-    return payloadUniqueId;
+  private int getPayloadRangeStart() {
+    return payloadRangeStart;
   }
 
-  public int getPayloadIterations() {
+  private int getPayloadRangeEnd() {
+    return payloadRangeEnd;
+  }
+
+  private int getPayloadRangeIncrement() {
+    return payloadRangeIncrement;
+  }
+
+  private int getPayloadIterations() {
     return payloadIterations;
   }
 
-  public int getPayloadIntervalMs() {
+  private int getPayloadIntervalMs() {
     return payloadIntervalMs;
   }
 
-  public String getPayloadAltId() {
-    return payloadAltId;
+  private int getPayloadIterationDelayMs() {
+    return payloadIterationDelayMs;
   }
 
   private final void readDbConfig() {
@@ -83,16 +103,30 @@ public class TestAuthBootstrap {
     try (InputStream inputStream = new FileInputStream(fileName)) {
       Properties properties = new Properties();
       properties.load(inputStream);
-      payloadClassName=properties.getProperty("payload.payloadClassName");
-      payloadUniqueId=properties.getProperty("payload.uniqueId");
-      payloadIterations=Integer.parseInt(properties.getProperty("payload.iterations"));
-      payloadIntervalMs=Integer.parseInt(properties.getProperty("payload.intervalMs"));
-      payloadAltId=properties.getProperty("payload.alternativeId");
-      logger.finer(() -> String.format("payload.payloadClassName=%s", payloadClassName));
-      logger.finer(() -> String.format("payload.uniqueId=%s", payloadUniqueId));
-      logger.finer(() -> String.format("payload.iterations=%s", payloadIterations));
+      payloadClassName=properties.getProperty("payload.className", "");
+      payloadRangeStart=Integer.parseInt(properties.getProperty("payload.rangeStart", "1"));
+      payloadRangeEnd=Integer.parseInt(properties.getProperty("payload.rangeEnd", "1"));
+      payloadRangeIncrement=Integer.parseInt(properties.getProperty("payload.rangeIncrement", "1"));
+      payloadIntervalMs=Integer.parseInt(properties.getProperty("payload.intervalMs", "0"));
+      payloadIterations=Integer.parseInt(properties.getProperty("payload.iterations", "1"));
+      payloadIterationDelayMs=Integer.parseInt(properties.getProperty("payload.iterationDelayMs", "0"));
+      payloadPrefix1=properties.getProperty("payload.prefix1", "SESSION");
+      payloadPrefix2=properties.getProperty("payload.prefix2", "USER");
+      if (payloadClassName.trim().equals("")) {
+        throw new IllegalArgumentException("Property payload.className must be specified.");
+      }
+      if (payloadRangeIncrement == 0) {
+        throw new IllegalArgumentException("Property payload.rangeIncrement cannot be 0.");
+      }
+      logger.finer(() -> String.format("payload.className=%s", payloadClassName));
+      logger.finer(() -> String.format("payload.rangeStart=%s", payloadRangeStart));
+      logger.finer(() -> String.format("payload.rangeEnd=%s", payloadRangeEnd));
+      logger.finer(() -> String.format("payload.rangeIncrement=%s", payloadRangeIncrement));
       logger.finer(() -> String.format("payload.intervalMs=%s", payloadIntervalMs));
-      logger.finer(() -> String.format("payload.alternativeId=%s", payloadAltId));
+      logger.finer(() -> String.format("payload.iterations=%s", payloadIterations));
+      logger.finer(() -> String.format("payload.iterationDelayMs=%s", payloadIterationDelayMs));
+      logger.finer(() -> String.format("payload.prefix1=%s", payloadPrefix1));
+      logger.finer(() -> String.format("payload.prefix2=%s", payloadPrefix2));
     }
     catch (Exception exception) {
       logger.severe(() -> String.format("FAILED: %s", exception.toString()));
@@ -133,12 +167,20 @@ public class TestAuthBootstrap {
       payloadClassInstance.init(bootstrap);
       logger.info(() -> String.format("Executing payload %s time(s) at %s ms intervals...", 
       bootstrap.getPayloadIterations(), bootstrap.getPayloadIntervalMs()));
-      int iteration = 0;
-      while (iteration < bootstrap.getPayloadIterations()) {
-        logger.fine("Executing payload iteration " + iteration + "...");
-        payloadClassInstance.payload(iteration);
+      int iteration = 1;
+      while (iteration <= bootstrap.getPayloadIterations()) {
+        logger.fine("Starting payload iteration " + iteration + "...");
+        int rangeValue = bootstrap.getPayloadRangeStart();
+        while (rangeValue <= bootstrap.getPayloadRangeEnd() && rangeValue >= bootstrap.getPayloadRangeStart()) {
+          logger.fine("Executing payload for iteration " + iteration + ", range value " + rangeValue + "...");
+          payloadClassInstance.payload(rangeValue, iteration);
+          rangeValue = rangeValue + bootstrap.getPayloadRangeIncrement();
+          if (bootstrap.getPayloadIntervalMs() > 0) {
+            Thread.sleep(bootstrap.getPayloadIntervalMs());
+          }
+        }
         if (bootstrap.getPayloadIntervalMs() > 0) {
-          Thread.sleep(bootstrap.getPayloadIntervalMs());
+          Thread.sleep(bootstrap.getPayloadIterationDelayMs());
         }
         iteration = iteration + 1;
       }      
