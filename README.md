@@ -6,7 +6,6 @@ This is the test repository for the Db2 [AUTH Service](https://github.com/easyda
 # Project status
 In active development, not yet completed.
 
-
 # Quick start
 
 ## Prerequisites
@@ -21,4 +20,4 @@ Follow the instructions to install the Db2 [AUTH Service](https://github.com/eas
 1. Build the Java code using the supplied Ant XML: ``ant -f build-db2-auth-TEST.xml``
 1. Amend the sample ``db_config.properties`` file to provide actual database, schema and user details.
 1. Execute a test by calling TestAuthBootstrap and supplying a properties file for the test payload. For example:
-    > ``java -cp dist/db2-auth-TEST.jar:/home/db2inst1/sqllib/java/db2jcc4.jar com.easydataservices.open.test.TestAuthBootstrap payload_save_la1.properties``
+    > ``java -cp dist/db2-auth-TEST.jar:/home/db2inst1/sqllib/java/db2jcc4.jar com.easydataservices.open.test.TestAuthBootstrap payload_create_sessions.properties``
