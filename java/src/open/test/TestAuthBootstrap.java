@@ -173,7 +173,12 @@ public class TestAuthBootstrap {
         int rangeValue = bootstrap.getPayloadRangeStart();
         while (rangeValue <= bootstrap.getPayloadRangeEnd() && rangeValue >= bootstrap.getPayloadRangeStart()) {
           logger.fine("Executing payload for iteration " + iteration + ", range value " + rangeValue + "...");
-          payloadClassInstance.payload(rangeValue, iteration);
+          try {
+            payloadClassInstance.payload(rangeValue, iteration);
+          }
+          catch (SQLException exception) {
+            logger.severe(() -> String.format("FAILED: %s", exception.getMessage()));
+          }
           rangeValue = rangeValue + bootstrap.getPayloadRangeIncrement();
           if (bootstrap.getPayloadIntervalMs() > 0) {
             Thread.sleep(bootstrap.getPayloadIntervalMs());
@@ -187,7 +192,7 @@ public class TestAuthBootstrap {
       bootstrap.cleanup();
     }
     catch (Exception exception) {
-      logger.severe(() -> String.format("FAILED: %s", exception.toString()));
+      logger.severe(() -> String.format("ABORT: %s", exception.getMessage()));
       System.exit(4);
     }
   }  
