@@ -60,10 +60,10 @@ public class TestAuthGetSessions extends TestAuthPayload {
           + "\n  object.length: " + attribute.getObject().toString().length();
       }
       final String text = "Session " + session.getSessionId() + " retrieved." + sessionInfo;
-      logger.info(() -> String.format("%s %s", this, "Session " + sessionId + " retrieved." + text));
+      logger.info("Session " + sessionId + " retrieved." + text);
     }
     else {
-      logger.info(() -> String.format("%s %s", this, "Session " + sessionId + " does not exist."));
+      logger.info("Session " + sessionId + " does not exist.");
     }
     logger.finer(() -> String.format("RETURN %s", this));
   }

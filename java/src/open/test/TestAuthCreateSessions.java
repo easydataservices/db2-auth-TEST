@@ -64,7 +64,7 @@ public class TestAuthCreateSessions extends TestAuthPayload {
       attributeList.add(sessionAttributes[i]);  
     }
     authAttributesDao.saveAttributes(sessionId, attributeList);
-    logger.info(() -> String.format("%s %s", this, "Created session " + session.getSessionId() + " with " + p + " attribute(s)."));
+    logger.info("Created session " + session.getSessionId() + " with " + p + " attributes.");
     logger.finer(() -> String.format("RETURN %s", this));
   }
 }

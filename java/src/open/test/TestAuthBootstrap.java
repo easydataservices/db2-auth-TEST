@@ -110,8 +110,8 @@ public class TestAuthBootstrap {
       payloadIntervalMs=Integer.parseInt(properties.getProperty("payload.intervalMs", "0"));
       payloadIterations=Integer.parseInt(properties.getProperty("payload.iterations", "1"));
       payloadIterationDelayMs=Integer.parseInt(properties.getProperty("payload.iterationDelayMs", "0"));
-      payloadPrefix1=properties.getProperty("payload.prefix1", "SESSION");
-      payloadPrefix2=properties.getProperty("payload.prefix2", "USER");
+      payloadPrefix1=properties.getProperty("payload.prefix1", "PREFIX1");
+      payloadPrefix2=properties.getProperty("payload.prefix2", "PREFIX2");
       if (payloadClassName.trim().equals("")) {
         throw new IllegalArgumentException("Property payload.className must be specified.");
       }
