@@ -52,19 +52,18 @@ public class TestAuthCreateSessions extends TestAuthPayload {
         session.getPropertiesJson()
       }
     );
-    int p = rangeValue % 6;
-    StoreAttribute[] sessionAttributes = new StoreAttribute[7];
-    for (int i = 0; i <= p; i++) {
+    int attributeCount = rangeValue % 6;
+    for (int i = 0; i <= attributeCount; i++) {
       int size = ((int) Math.pow(2, i + 1)) * 32000;
       char[] charArray = new char[size];
       Arrays.fill(charArray, '*');
       String attributeName = "ATTRIBUTE_" + (i + 1);
-      sessionAttributes[i] = new StoreAttribute(attributeName);
-      sessionAttributes[i].setObject("large object:" + new String(charArray) + attributeName);
-      attributeList.add(sessionAttributes[i]);  
+      StoreAttribute attribute = new StoreAttribute(attributeName);
+      attribute.setObject("large object:" + new String(charArray) + attributeName);
+      attributeList.add(attribute);
     }
     authAttributesDao.saveAttributes(sessionId, attributeList);
-    logger.info("Created session " + session.getSessionId() + " with " + p + " attributes.");
+    logger.info("Created session " + session.getSessionId() + " with " + attributeCount + " attributes.");
     logger.finer(() -> String.format("RETURN %s", this));
   }
 }
