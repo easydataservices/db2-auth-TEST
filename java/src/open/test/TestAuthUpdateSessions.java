@@ -3,6 +3,7 @@ package com.easydataservices.open.test;
 import java.util.logging.Logger;
 import com.easydataservices.open.auth.AuthControlDao;
 import com.easydataservices.open.auth.AuthSessionDao;
+import com.easydataservices.open.auth.SessionConfig;
 import com.easydataservices.open.auth.StoreSession;
 import com.easydataservices.open.test.TestAuthBootstrap;
 import com.easydataservices.open.test.TestAuthPayload;
@@ -43,15 +44,11 @@ public class TestAuthUpdateSessions extends TestAuthPayload {
       if (authName == null && authNamePrefix != null) {
         authName = authNamePrefix + rangeValue;
       }
-      authControlDao.changeSessionConfig(
-        sessionId,
-        new Object[] {
-          null,
-          authName,
-          30,
-          "{\"comment\":\"Updated by TestAuthUpdateSessions\"}"
-        }
-      );  
+      SessionConfig sessionConfig = new SessionConfig();
+      sessionConfig.setAuthName(authName);
+      sessionConfig.setMaxIdleMinutes((short) 30);
+      sessionConfig.setPropertiesJson("{\"comment\":\"Updated by TestAuthUpdateSessions\"}");
+      authControlDao.changeSessionConfig(sessionId, sessionConfig);
       logger.info("Updated session " + sessionId + ".");
     }
     logger.finer(() -> String.format("RETURN %s", this));

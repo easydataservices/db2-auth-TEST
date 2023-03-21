@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.logging.Logger;
 import com.easydataservices.open.auth.AuthControlDao;
 import com.easydataservices.open.auth.AuthAttributesDao;
+import com.easydataservices.open.auth.SessionConfig;
 import com.easydataservices.open.auth.StoreSession;
 import com.easydataservices.open.auth.StoreAttribute;
 import com.easydataservices.open.test.TestAuthBootstrap;
@@ -43,15 +44,10 @@ public class TestAuthCreateSessions extends TestAuthPayload {
       authName = authNamePrefix + rangeValue;
     }
     StoreSession session = new StoreSession(sessionId);
-    authControlDao.addSession(
-      session.getSessionId(),
-      new Object[] {
-        null,
-        authName,
-        null,
-        session.getPropertiesJson()
-      }
-    );
+    SessionConfig sessionConfig = new SessionConfig();
+    sessionConfig.setAuthName(authName);
+    sessionConfig.setPropertiesJson(session.getPropertiesJson());
+    authControlDao.addSession(session.getSessionId(), sessionConfig);
     int attributeCount = rangeValue % 6;
     for (int i = 0; i <= attributeCount; i++) {
       int size = ((int) Math.pow(2, i + 1)) * 32000;
